@@ -54,7 +54,7 @@ export default function ChatWindow({
     // Fetch initial help message when a new conversation starts and messages are empty
     if (activeConversation && messages.length === 0) {
       setLoading(true);
-      fetch(`https://chainpilot.onrender.com/api/command`, {
+      fetch(`https://chainpilot.onrender.com/command`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command: 'help', confirm: null }),
@@ -122,7 +122,7 @@ export default function ChatWindow({
 
       const payload = { command: commandToSend, confirm: confirmValue };
       console.log("Sending payload:", payload, "Method: POST", "To:", process.env.NEXT_PUBLIC_API_URL);
-      const response = await fetch(`https://chainpilot.onrender.com/api/command`, {
+      const response = await fetch('https://chainpilot.onrender.com/command', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
