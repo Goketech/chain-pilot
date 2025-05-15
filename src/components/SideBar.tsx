@@ -29,7 +29,7 @@ interface SidebarProps {
             {/* Sidebar Panel */}
             <aside className="relative z-10 w-64 bg-gray-800 p-4 flex flex-col space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">ChatGPT UI</h2>
+                <h2 className="text-xl font-bold">ChainPilot</h2>
                 <button
                   onClick={onClose}
                   className="text-white hover:text-red-400"
