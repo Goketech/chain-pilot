@@ -18,7 +18,7 @@ export default function ChatWindow() {
     // Initial introduction
     const introMessage: Message = {
       role: 'assistant',
-      content: "Hello! I’m ChainPilot, your blockchain assistant. 💬 What would you like ChainPilot to do?"
+      content: "Hello! I’m ChainPilot, your blockchain assistant. How can I help you today?",
     };
     setMessages((prev) => [...prev, introMessage]);
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,12 +37,14 @@ export default function ChatWindow() {
     setLoading(true);
 
     try {
+      // Ensure confirm is null if not explicitly true/false
+      const confirmValue = pendingPrompt ? (input.toLowerCase() === 'yes') : null;
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           command: input,
-          confirm: pendingPrompt ? (input.toLowerCase() === 'yes') : (input.toLowerCase().includes("cancel") ? undefined : null),
+          confirm: confirmValue,
         }),
       });
 
@@ -91,6 +93,8 @@ export default function ChatWindow() {
       </div>
       <div className="border-t border-gray-700 p-4">
         <textarea
+          id="command-input"
+          name="command"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
