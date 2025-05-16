@@ -17,7 +17,7 @@ export default function Home() {
         <div className="md:hidden p-4 bg-gray-900 border-b border-gray-700">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-white bg-gray-700 px-3 py-1 rounded"
+            className="text-black bg-[#F0D971] px-3 py-1 rounded"
           >
             ☰ Menu
           </button>

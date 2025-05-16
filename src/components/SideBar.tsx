@@ -7,14 +7,14 @@ interface SidebarProps {
     return (
       <>
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex w-64 bg-gray-800 p-4 flex-col space-y-4">
+        <aside className="hidden md:flex w-64 bg-[#C8A2C8] p-4 flex-col space-y-4">
           <h2 className="text-xl font-bold">ChainPilot</h2>
-          <button className="bg-green-600 px-4 py-2 rounded hover:bg-green-500">
+          <button className="bg-[#F0D971] px-4 py-2 rounded hover:opacity-90">
             + New Chat
           </button>
           <div className="flex-1 overflow-y-auto mt-4 space-y-2">
-            <p className="bg-gray-700 p-2 rounded">Conversation 1</p>
-            <p className="bg-gray-700 p-2 rounded">Conversation 2</p>
+            <p className="bg-white text-black p-2 rounded">Conversation 1</p>
+            <p className="bg-white text-black p-2 rounded">Conversation 2</p>
           </div>
         </aside>
   
@@ -27,7 +27,7 @@ interface SidebarProps {
               onClick={onClose}
             />
             {/* Sidebar Panel */}
-            <aside className="relative z-10 w-64 bg-gray-800 p-4 flex flex-col space-y-4">
+            <aside className="relative z-10 w-64 bg-[#C8A2C8] p-4 flex flex-col space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold">ChainPilot</h2>
                 <button
@@ -37,12 +37,12 @@ interface SidebarProps {
                   ✕
                 </button>
               </div>
-              <button className="bg-green-600 px-4 py-2 rounded hover:bg-green-500">
+              <button className="bg-[#F0D971] text-black  px-4 py-2 rounded hover:bg-green-500">
                 + New Chat
               </button>
               <div className="flex-1 overflow-y-auto mt-4 space-y-2">
-                <p className="bg-gray-700 p-2 rounded">Conversation 1</p>
-                <p className="bg-gray-700 p-2 rounded">Conversation 2</p>
+                <p className="bg-white text-black p-2 rounded">Conversation 1</p>
+                <p className="bg-white text-black p-2 rounded">Conversation 2</p>
               </div>
             </aside>
           </div>

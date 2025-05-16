@@ -84,7 +84,7 @@ export default function ChatWindow() {
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-xl p-3 rounded-lg ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
+            <div className={`max-w-xl p-3 rounded-lg ${msg.role === 'user' ? 'bg-[#F0D971] text-black' : 'bg-[#C8A2C8] text-white'}`}>
               {msg.content}
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function ChatWindow() {
           <button
             onClick={sendMessage}
             disabled={loading}
-            className={`px-4 py-2 rounded text-sm ${loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'}`}
+            className={`px-4 py-2 rounded text-sm ${loading ? 'bg-[#ccc] cursor-not-allowed text-[#666]' : 'bg-[#F0D971] hover:opacity-90 text-black'}`}
           >
             {loading ? 'Sending...' : 'Send'}
           </button>
