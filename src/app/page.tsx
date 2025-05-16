@@ -1,15 +1,50 @@
+// C:\Users\jules\Desktop\chain-pilot\src\app\page.tsx
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from '@/components/SideBar'
 import ChatWindow from '@/components/ChatWindow'
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [conversations, setConversations] = useState<string[]>([]);
+  const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [conversationMessages, setConversationMessages] = useState<Record<string, { role: 'user' | 'assistant'; content: string }[]>>({});
+
+  useEffect(() => {
+    // Initialize with a default conversation on app load
+    const initialChatTime = new Date().toLocaleTimeString();
+    setConversations([initialChatTime]);
+    setActiveConversation(initialChatTime);
+    setConversationMessages({
+      [initialChatTime]: [{ role: 'assistant', content: "Hello! I’m ChainPilot, your blockchain assistant. How can I help you today?" }],
+    });
+  }, []); // Run only once on mount
+
+  const handleNewChat = () => {
+    const newChatTime = new Date().toLocaleTimeString();
+    setConversations((prev) => [...prev, newChatTime]);
+    setActiveConversation(newChatTime);
+    setConversationMessages((prev) => ({
+      ...prev,
+      [newChatTime]: [{ role: 'assistant', content: "Hello! I’m ChainPilot, your blockchain assistant. How can I help you today?" }],
+    }));
+  };
+
+  const handleSelectConversation = (conversation: string) => {
+    setActiveConversation(conversation);
+  };
 
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)}
+        conversations={conversations}
+        onNewChat={handleNewChat}
+        activeConversation={activeConversation}
+        onSelectConversation={handleSelectConversation}
+      />
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col relative">
@@ -22,7 +57,14 @@ export default function Home() {
             ☰ Menu
           </button>
         </div>
-        <ChatWindow />
+        <ChatWindow 
+          conversations={conversations}
+          activeConversation={activeConversation}
+          setActiveConversation={setActiveConversation}
+          setConversations={setConversations}
+          conversationMessages={conversationMessages}
+          setConversationMessages={setConversationMessages}
+        />
       </div>
     </div>
   )
