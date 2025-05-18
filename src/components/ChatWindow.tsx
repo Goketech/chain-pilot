@@ -40,7 +40,10 @@ export default function ChatWindow({
   }, [pendingPrompt, pendingCommand, messages, activeConversation]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeConversation) return;
+    if (!input.trim() || !activeConversation) {
+      console.warn("No input or active conversation selected.");
+      return;
+    }
 
     const userMessage: Message = { role: 'user', content: input };
     // Update messages for the current conversation
@@ -69,11 +72,15 @@ export default function ChatWindow({
         confirm: confirmValue,
       };
       console.log("Sending payload:", payload);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/command`, {
+      const response = await fetch(`/api/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       console.log("Backend response:", data);
