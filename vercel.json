@@ -1,1 +1,18 @@
-} 
+{
+  "rewrites": [
+    {
+      "source": "/api/command",
+      "destination": "https://chainpilot.onrender.com/api/command"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/command",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+      ]
+    }
+  ]
+}
