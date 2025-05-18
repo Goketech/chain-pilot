@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/command",
-      "destination": "https://chainpilot.onrender.com/api/command"
+      "destination": "https://chainpilot.onrender.com/command"
     }
   ],
   "headers": [
