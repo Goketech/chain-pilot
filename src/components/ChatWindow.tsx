@@ -46,7 +46,6 @@ export default function ChatWindow({
     }
 
     const userMessage: Message = { role: 'user', content: input };
-    // Update messages for the current conversation
     setConversationMessages({
       ...conversationMessages,
       [activeConversation]: [...messages, userMessage],
@@ -71,15 +70,17 @@ export default function ChatWindow({
         command: commandToSend,
         confirm: confirmValue,
       };
-      console.log("Sending payload:", payload);
+      console.log("Sending payload:", payload, "Method: POST");
       const response = await fetch(`/api/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      console.log("Response status:", response.status, "OK:", response.ok);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
       }
 
       const data = await response.json();
@@ -107,10 +108,15 @@ export default function ChatWindow({
       }
     } catch (error) {
       console.error("Fetch error:", error);
-      const errorMessage: Message = { role: 'assistant', content: "Failed to connect to the backend. Please try again." };
+      const errorMessage = error instanceof Error 
+        ? (error.message.includes('405') 
+          ? "Method not allowed. Please ensure the server accepts POST requests."
+          : "Failed to connect to the backend. Please try again.")
+        : "An unexpected error occurred.";
+      const errorMsg: Message = { role: 'assistant', content: errorMessage };
       setConversationMessages({
         ...conversationMessages,
-        [activeConversation]: [...messages, userMessage, errorMessage],
+        [activeConversation]: [...messages, userMessage, errorMsg],
       });
     } finally {
       setLoading(false);
