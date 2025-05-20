@@ -8,6 +8,13 @@ interface Message {
   content: string;
 }
 
+interface ApiResponse {
+  status: "success" | "error" | "prompt";
+  message: string;
+  tx_hash?: string;
+  jobs?: { task_id: number; timestamp: number; to_address: string; amount: number; tx_hash: string }[];
+}
+
 interface ChatWindowProps {
   conversations: string[];
   activeConversation: string | null;
@@ -29,19 +36,34 @@ export default function ChatWindow({
   const [loading, setLoading] = useState(false);
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const [pendingCommand, setPendingCommand] = useState<string | null>(null);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Get the current conversation's messages or an empty array if none exist
-  const messages = activeConversation && conversationMessages[activeConversation] ? conversationMessages[activeConversation] : [];
+  const messages = activeConversation && conversationMessages[activeConversation] 
+    ? conversationMessages[activeConversation] 
+    : [];
 
   useEffect(() => {
+    if (!activeConversation && conversations.length === 0) {
+      const newConversationId = `conv_${Date.now()}`;
+      setConversations([newConversationId]);
+      setActiveConversation(newConversationId);
+      setConversationMessages({ [newConversationId]: [] });
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    console.log("Pending prompt updated:", pendingPrompt, "Pending command:", pendingCommand);
-  }, [pendingPrompt, pendingCommand, messages, activeConversation]);
+  }, [messages.length, activeConversation, conversations.length, setConversations, setActiveConversation, setConversationMessages]);
 
   const sendMessage = async () => {
     if (!input.trim() || !activeConversation) {
       console.warn("No input or active conversation selected.");
+      return;
+    }
+    if (pendingPrompt && !['yes', 'no'].includes(input.toLowerCase().trim())) {
+      setConversationMessages({
+        ...conversationMessages,
+        [activeConversation]: [...messages, { role: 'assistant', content: "Please type 'yes' or 'no'." }],
+      });
       return;
     }
 
@@ -66,24 +88,20 @@ export default function ChatWindow({
         console.log("Pending prompt without command, Confirm value:", confirmValue);
       }
 
-      const payload = {
-        command: commandToSend,
-        confirm: confirmValue,
-      };
-      console.log("Sending payload:", payload, "Method: POST");
-      const response = await fetch(`/api/command`, {
+      const payload = { command: commandToSend, confirm: confirmValue };
+      console.log("Sending payload:", payload, "Method: POST", "To:", process.env.NEXT_PUBLIC_API_URL);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/command`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      console.log("Response status:", response.status, "OK:", response.ok);
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as ApiResponse;
       console.log("Backend response:", data);
 
       if (data.status === "prompt") {
@@ -109,10 +127,8 @@ export default function ChatWindow({
     } catch (error) {
       console.error("Fetch error:", error);
       const errorMessage = error instanceof Error 
-        ? (error.message.includes('405') 
-          ? "Method not allowed. Please ensure the server accepts POST requests."
-          : "Failed to connect to the backend. Please try again.")
-        : "An unexpected error occurred.";
+        ? `Failed to connect: ${error.message}. Check console for details.`
+        : "An unexpected error occurred. Please contact support.";
       const errorMsg: Message = { role: 'assistant', content: errorMessage };
       setConversationMessages({
         ...conversationMessages,
@@ -124,15 +140,32 @@ export default function ChatWindow({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'ArrowUp' && commandHistory.length > 0) {
       e.preventDefault();
+      const index = Math.min(historyIndex + 1, commandHistory.length - 1);
+      setHistoryIndex(index);
+      setInput(commandHistory[commandHistory.length - 1 - index] || '');
+    } else if (e.key === 'ArrowDown' && historyIndex >= 0) {
+      e.preventDefault();
+      const index = Math.max(historyIndex - 1, -1);
+      setHistoryIndex(index);
+      setInput(index === -1 ? '' : commandHistory[commandHistory.length - 1 - index] || '');
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      setCommandHistory([...commandHistory, input]);
+      setHistoryIndex(-1);
       sendMessage();
     }
   };
 
   return (
     <div className="flex-1 flex flex-col bg-gray-900 h-full">
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4" role="log" aria-live="polite">
+        {loading && (
+          <div className="flex justify-center p-2 text-gray-400">
+            <span className="animate-pulse">Thinking...</span>
+          </div>
+        )}
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-xl p-3 rounded-lg ${msg.role === 'user' ? 'bg-[#F0D971] text-black' : 'bg-[#C8A2C8] text-white'}`}>
@@ -150,15 +183,18 @@ export default function ChatWindow({
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
-          className="w-full p-2 bg-gray-800 text-white rounded resize-none focus:outline-none"
+          className="w-full p-2 bg-gray-800 text-white rounded resize-none focus:outline-none focus:ring-2 focus:ring-[#F0D971]"
           placeholder={pendingPrompt ? "Please type 'yes' or 'no'" : "Type your command (e.g., send 0.1 tokens to 0x...)"}
           disabled={loading}
+          aria-label="Chat input"
+          aria-live="polite"
         />
         <div className="mt-2 text-right">
           <button
             onClick={sendMessage}
             disabled={loading}
             className={`px-4 py-2 rounded text-sm ${loading ? 'bg-[#ccc] cursor-not-allowed text-[#666]' : 'bg-[#F0D971] hover:opacity-90 text-black'}`}
+            aria-label="Send message"
           >
             {loading ? 'Sending...' : 'Send'}
           </button>
