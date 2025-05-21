@@ -72,7 +72,10 @@ export default function ChatWindow({
         })
         .catch(error => {
           console.error('Error fetching initial message:', error);
-          const errorMsg: Message = { role: 'assistant', content: '❌ Failed to load initial message. Check console for details.' };
+          const errorMsg: Message = { 
+            role: 'assistant', 
+            content: `❌ Failed to load initial message. HTTP ${error.message.match(/status: (\d+)/)?.[1] || 'error'}. Please check the API status or try again later.` 
+          };
           setConversationMessages({
             ...conversationMessages,
             [activeConversation]: [errorMsg],
