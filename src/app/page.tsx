@@ -18,10 +18,7 @@ export default function Home() {
     setConversationMessages({
       [initialChatTime]: [{
         role: 'assistant',
-        content: "👋 Hello! I’m ChainPilot, your blockchain assistant.\n"
-               + "🧠 Supported actions: send tokens, schedule transfers, cancel tasks, stake, withdraw, unstake, "
-               + "check portfolio, show staking rewards, create token, deploy nft, mint nft, register basename.\n"
-               + "💬 What would you like me to do?"
+        content: "👋 Hello! I’m ChainPilot, your blockchain assistant. 🧠 Supported actions: send tokens, schedule transfers, ..... What would you like me to do?"
       }],
     });
   }, []); // Run only once on mount
@@ -34,10 +31,7 @@ export default function Home() {
       ...prev,
       [newChatTime]: [{
         role: 'assistant',
-        content: "👋 Hello! I’m ChainPilot, your blockchain assistant.\n"
-               + "🧠 Supported actions: send tokens, schedule transfers, cancel tasks, stake, withdraw, unstake, "
-               + "check portfolio, show staking rewards, create token, deploy nft, mint nft, register basename.\n"
-               + "💬 What would you like me to do?"
+        content: "👋 Hello! I’m ChainPilot, your blockchain assistant. 🧠 Supported actions: send tokens, schedule transfers, ..... What would you like me to do?"
       }],
     }));
   };
