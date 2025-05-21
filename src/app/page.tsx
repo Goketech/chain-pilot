@@ -15,19 +15,7 @@ export default function Home() {
     setConversations([initialChatTime]);
     setActiveConversation(initialChatTime);
     setConversationMessages({
-      [initialChatTime]: [{
-        role: 'assistant',
-        content: "👋 Hello! I’m ChainPilot, your blockchain assistant on Base mainnet.\n" +
-                 "🧠 I can help you with the following actions:\n" +
-                 "- check_executor_permissions: Verify the Executor contract address.\n" +
-                 "- check_scheduler_permissions: Check the Scheduler contract's executer address.\n" +
-                 "- send_tokens <amount> to <address>: Send ETH (e.g., 'send_tokens 0.1 to 0x...'). Requires executer permissions.\n" +
-                 "- schedule_transfers <amount> to <address> at <timestamp>: Schedule an ETH transfer (e.g., 'schedule_transfers 0.1 to 0x... at 1696118400'). Anyone can schedule, but only the executer can execute.\n" +
-                 "- list_tasks: View all scheduled tasks.\n" +
-                 "- cancel_tasks <task_id>: Cancel a scheduled task (use 'list_tasks' to find task IDs).\n" +
-                 "- help: Show this message.\n" +
-                 "💬 What would you like me to do? Just type your command below!"
-      }],
+      [initialChatTime]: [], // Start with an empty message list; ChatWindow will fetch the initial message
     });
   }, []); // Run only once on mount
 
@@ -37,19 +25,7 @@ export default function Home() {
     setActiveConversation(newChatTime);
     setConversationMessages((prev) => ({
       ...prev,
-      [newChatTime]: [{
-        role: 'assistant',
-        content: "👋 Hello! I’m ChainPilot, your blockchain assistant on Base mainnet.\n" +
-                 "🧠 I can help you with the following actions:\n" +
-                 "- check_executor_permissions: Verify the Executor contract address.\n" +
-                 "- check_scheduler_permissions: Check the Scheduler contract's executer address.\n" +
-                 "- send_tokens <amount> to <address>: Send ETH (e.g., 'send_tokens 0.1 to 0x...'). Requires executer permissions.\n" +
-                 "- schedule_transfers <amount> to <address> at <timestamp>: Schedule an ETH transfer (e.g., 'schedule_transfers 0.1 to 0x... at 1696118400'). Anyone can schedule, but only the executer can execute.\n" +
-                 "- list_tasks: View all scheduled tasks.\n" +
-                 "- cancel_tasks <task_id>: Cancel a scheduled task (use 'list_tasks' to find task IDs).\n" +
-                 "- help: Show this message.\n" +
-                 "💬 What would you like me to do? Just type your command below!"
-      }],
+      [newChatTime]: [], // Start with an empty message list; ChatWindow will fetch the initial message
     }));
   };
 

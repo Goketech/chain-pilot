@@ -51,6 +51,35 @@ export default function ChatWindow({
       setActiveConversation(newConversationId);
       setConversationMessages({ [newConversationId]: [] });
     }
+    // Fetch initial help message when a new conversation starts and messages are empty
+    if (activeConversation && messages.length === 0) {
+      setLoading(true);
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/command`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: 'help', confirm: null }),
+      })
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json() as Promise<ApiResponse>;
+        })
+        .then(data => {
+          const initialMessage: Message = { role: 'assistant', content: data.message };
+          setConversationMessages({
+            ...conversationMessages,
+            [activeConversation]: [initialMessage],
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching initial message:', error);
+          const errorMsg: Message = { role: 'assistant', content: '❌ Failed to load initial message. Check console for details.' };
+          setConversationMessages({
+            ...conversationMessages,
+            [activeConversation]: [errorMsg],
+          });
+        })
+        .finally(() => setLoading(false));
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, activeConversation, conversations.length, setConversations, setActiveConversation, setConversationMessages]);
 
@@ -168,8 +197,22 @@ export default function ChatWindow({
         )}
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-xl p-3 rounded-lg ${msg.role === 'user' ? 'bg-[#F0D971] text-black' : 'bg-[#C8A2C8] text-white'}`}>
-              {msg.content}
+            <div
+              className={`max-w-xl p-3 rounded-lg whitespace-pre-line ${
+                msg.role === 'user' ? 'bg-[#F0D971] text-black' : 'bg-[#C8A2C8] text-white'
+              }`}
+            >
+              {msg.content.split('\n').map((line, index) => {
+                if (line.startsWith('- ')) {
+                  return (
+                    <div key={index} className="ml-4 flex items-start">
+                      <span className="inline-block w-2 h-2 mr-2 bg-white rounded-full mt-1" />
+                      <span>{line.substring(2)}</span>
+                    </div>
+                  );
+                }
+                return <div key={index}>{line}</div>;
+              })}
             </div>
           </div>
         ))}
